@@ -1,0 +1,12 @@
+* {
+  padding: 0px;
+  margin: 0px;
+}
+
+.grid {
+  border: black 0.5px solid;
+}
+
+.container {
+  width: 80%;
+}

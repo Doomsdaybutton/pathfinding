@@ -1,0 +1,28 @@
+* {
+  margin: 0px;
+  padding: 0px;
+}
+.node {
+  border: black 0.5px solid;
+  padding: 10px;
+}
+
+.visited {
+  background-color: rgb(0, 195, 255);
+}
+
+.path {
+  background-color: yellow;
+}
+
+.wall {
+  background-color: #333;
+}
+
+.start {
+  background-color: green;
+}
+
+.finish {
+  background-color: red;
+}
