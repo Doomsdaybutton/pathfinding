@@ -55,6 +55,6 @@ AlgorithmResult.prototype.animateShortestPathInOrder = function () {
       document.getElementById(
         `node-${this.shortestPathInOrder[i].x}-${this.shortestPathInOrder[i].y}`
       ).className += " path";
-    }, i * SHORTEST_PATH_ANIMATION_SPEED);
+    }, SHORTEST_PATH_ANIMATION_SPEED * i);
   }
 };

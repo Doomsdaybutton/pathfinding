@@ -4,8 +4,8 @@
 }
 
 .node {
-  padding: 10px;
-  border: black 0.5px solid;
+  padding: 9px;
+  border: rgba(17, 188, 255, 0.349) 0.5px solid;
 }
 
 /* ------------------- */
@@ -22,7 +22,7 @@
 }
 
 @keyframes visitedAnimation {
-  0% {
+  /*0% {
     background-color: rgb(20, 235, 163);
     border-radius: 20%;
     transform: scale(0.8);
@@ -32,9 +32,9 @@
     background-color: rgb(20, 235, 163);
     border-radius: 20%;
     transform: scale(0.8);
-  }
+  }*/
 
-  5% {
+  0% {
     transform: scale(0.3);
     border-radius: 100%;
     background-color: rgba(0, 0, 66, 0.75);
@@ -52,7 +52,13 @@
   100% {
     transform: scale(1);
     background-color: rgba(0, 190, 218, 0.75);
+    border: rgb(17, 188, 255) 0.5px solid;
   }
+}
+
+.visited.preview {
+  background-color: rgba(0, 190, 218, 0.75);
+  border: rgb(17, 188, 255) 0.5px solid;
 }
 
 .wall {
@@ -77,22 +83,26 @@
   }
 
   50% {
-    transform: scale(1.2);
+    transform: scale(1.1);
     background-color: rgb(255, 254, 106);
-    border-radius: 10%;
   }
 
   100% {
     transform: scale(1);
     background-color: rgb(255, 254, 106);
-    border-radius: 0%;
   }
 }
 
+.path.preview {
+  background-color: rgb(255, 254, 106);
+}
+
 .start {
-  background-color: green;
+  background-color: rgb(0, 128, 53);
+  border: rgb(17, 188, 255) 0.5px solid;
 }
 
 .finish {
-  background-color: red;
+  background-color: rgba(255, 0, 0, 0.822);
+  border: rgb(17, 188, 255) 0.5px solid;
 }

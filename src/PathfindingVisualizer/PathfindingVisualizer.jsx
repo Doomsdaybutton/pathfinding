@@ -4,14 +4,14 @@ import React from "react";
 import Node from "./Node/Node";
 import algorithm from "../algorithms/algorithm";
 
-export const START_NODE_X = 4,
-  START_NODE_Y = 9,
-  FINISH_NODE_X = 25,
-  FINISH_NODE_Y = 9,
-  COLS = 30,
-  ROWS = 19,
-  VISITED_NODES_ANIMATION_SPEED = 20,
-  SHORTEST_PATH_ANIMATION_SPEED = 3;
+export const COLS = 55,
+  ROWS = 25,
+  START_NODE_X = 5,
+  START_NODE_Y = Math.floor(ROWS / 2),
+  FINISH_NODE_X = COLS - START_NODE_X - 1,
+  FINISH_NODE_Y = START_NODE_Y,
+  VISITED_NODES_ANIMATION_SPEED = 15,
+  SHORTEST_PATH_ANIMATION_SPEED = 7;
 
 export default class PathfindingVisualizer extends React.Component {
   constructor() {
