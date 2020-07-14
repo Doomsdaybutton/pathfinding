@@ -182,6 +182,14 @@ export default class PathfindingVisualizer extends React.Component {
       newGrid[x2][y2].isFinish = true;
       this.setState({ finishNode: { x: x2, y: y2 } });
     }
+    //this.setState({ grid: newGrid });
+    this.previewAlgorithm();
+  }
+
+  previewAlgorithm() {
+    const grid = this.clearGrid();
+    const result = algorithm(this.state.algorithm, grid);
+    result.animate(true);
   }
 
   wall(grid, x, y, isAddingWalls) {
