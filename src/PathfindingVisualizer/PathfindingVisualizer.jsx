@@ -30,6 +30,7 @@ export default class PathfindingVisualizer extends React.Component {
       startNode: { x: START_NODE_X, y: START_NODE_Y },
       finishNode: { x: FINISH_NODE_X, y: FINISH_NODE_Y },
       replaceDragNodeWithWall: false,
+      hasVisualized: false,
     };
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -47,7 +48,7 @@ export default class PathfindingVisualizer extends React.Component {
 
   visualizeAlgorithm() {
     const grid = this.clearGrid();
-    this.setState({ isVisualizing: true });
+    this.setState({ isVisualizing: true, hasVisualized: true });
     const result = algorithm(this.state.algorithm, grid);
     result.animate();
     setTimeout(() => {
@@ -80,8 +81,18 @@ export default class PathfindingVisualizer extends React.Component {
 
   //Completely clears the board.
   clearBoard() {
-    this.clearGrid();
-    this.setState({ grid: this.createGrid(COLS, ROWS) });
+    this.setState(
+      {
+        startNode: { x: START_NODE_X, y: START_NODE_Y },
+        finishNode: { x: FINISH_NODE_X, y: FINISH_NODE_Y },
+      },
+      () => {
+        //setState() is asynchronous thus need to use callback (see: https://ednsquare.com/question/react-js-setstate-doesn-t-update-the-state-immediately------YASNTM)
+        this.clearGrid();
+        const newGrid = this.createGrid(COLS, ROWS);
+        this.setState({ grid: newGrid, hasVisualized: false });
+      }
+    );
   }
 
   createGrid(cols, rows) {
@@ -90,7 +101,6 @@ export default class PathfindingVisualizer extends React.Component {
       .map(() => new Array(parseInt(rows, 10)).fill(null));
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
-        console.log(this);
         grid[x][y] = this.createNode(x, y);
       }
     }
@@ -192,7 +202,7 @@ export default class PathfindingVisualizer extends React.Component {
       this.setState({ finishNode: { x: x2, y: y2 } });
     }
     //this.setState({ grid: newGrid });
-    this.previewAlgorithm();
+    if (this.state.hasVisualized) this.previewAlgorithm();
   }
 
   previewAlgorithm() {
