@@ -63,6 +63,7 @@
 
 .wall {
   background-color: rgb(12, 53, 71);
+  border: rgb(12, 53, 71) 0.5px solid;
 }
 
 .path:not(.start):not(.finish) {
@@ -78,31 +79,33 @@
 
 @keyframes shortestPath {
   0% {
-    transform: scale(0.6);
+    transform: scale(0.7);
     background-color: rgb(255, 254, 106);
   }
 
   50% {
-    transform: scale(1.1);
+    transform: scale(1.01);
     background-color: rgb(255, 254, 106);
   }
 
   100% {
     transform: scale(1);
     background-color: rgb(255, 254, 106);
+    border: rgb(255, 254, 106) 0.5px solid;
   }
 }
 
 .path.preview {
   background-color: rgb(255, 254, 106);
+  border: rgb(255, 254, 106) 0.5px solid;
 }
 
 .start {
   background-color: rgb(0, 128, 53);
-  border: rgb(17, 188, 255) 0.5px solid;
+  border: rgb(0, 128, 53) 0.5px solid;
 }
 
 .finish {
   background-color: rgba(255, 0, 0, 0.822);
-  border: rgb(17, 188, 255) 0.5px solid;
+  border: rgba(255, 0, 0, 0.822) 0.5px solid;
 }
