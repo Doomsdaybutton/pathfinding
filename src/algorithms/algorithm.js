@@ -28,7 +28,7 @@ export function AlgorithmResult(
 
 AlgorithmResult.prototype.animate = function () {
   if (!this.isSuccessful) {
-    alert("unsuccessful");
+    //alert("unsuccessful");
   }
   this.animateVisitedNodesInOrder();
   setTimeout(

@@ -4,14 +4,16 @@ import React from "react";
 import Node from "./Node/Node";
 import algorithm from "../algorithms/algorithm";
 
-export const START_NODE_X = 4,
+//X and Y values are just the initial values
+const START_NODE_X = 4,
   START_NODE_Y = 9,
   FINISH_NODE_X = 25,
   FINISH_NODE_Y = 9,
   COLS = 30,
-  ROWS = 19,
-  VISITED_NODES_ANIMATION_SPEED = 20,
-  SHORTEST_PATH_ANIMATION_SPEED = 3;
+  ROWS = 19;
+
+export const VISITED_NODES_ANIMATION_SPEED = 10,
+  SHORTEST_PATH_ANIMATION_SPEED = 5;
 
 export default class PathfindingVisualizer extends React.Component {
   constructor() {
@@ -19,11 +21,14 @@ export default class PathfindingVisualizer extends React.Component {
     this.cols = COLS;
     this.rows = ROWS;
     this.state = {
-      grid: this.createGrid(this.cols, this.rows),
+      grid: null,
       isMousePressed: false,
       isAddingWalls: true,
       isVisualizing: false,
       algorithm: "dijkstra",
+      dragNode: null,
+      startNode: { x: START_NODE_X, y: START_NODE_Y },
+      finishNode: { x: FINISH_NODE_X, y: FINISH_NODE_Y },
     };
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -31,6 +36,12 @@ export default class PathfindingVisualizer extends React.Component {
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.visualizeAlgorithm = this.visualizeAlgorithm.bind(this);
     this.clearGrid = this.clearGrid.bind(this);
+    this.clearBoard = this.clearBoard.bind(this);
+    this.createNode = this.createNode.bind(this);
+  }
+
+  componentWillMount() {
+    this.setState({ grid: this.createGrid(this.cols, this.rows) });
   }
 
   visualizeAlgorithm() {
@@ -43,6 +54,7 @@ export default class PathfindingVisualizer extends React.Component {
     }, result.nodesInVisitedOrder.length * VISITED_NODES_ANIMATION_SPEED + result.shortestPathInOrder.length * SHORTEST_PATH_ANIMATION_SPEED + 20);
   }
 
+  //Clears the Grid for a new Visualization. Doesn't remove walls
   clearGrid() {
     var newGrid = this.state.grid.slice();
     for (let x = 0; x < newGrid.length; x++) {
@@ -65,68 +77,97 @@ export default class PathfindingVisualizer extends React.Component {
     return newGrid;
   }
 
+  //Completely clears the board.
+  clearBoard() {
+    this.clearGrid();
+    this.setState({ grid: this.createGrid(COLS, ROWS) });
+  }
+
   createGrid(cols, rows) {
     var grid = new Array(parseInt(cols, 10))
       .fill(null)
       .map(() => new Array(parseInt(rows, 10)).fill(null));
     for (let x = 0; x < cols; x++) {
       for (let y = 0; y < rows; y++) {
+        console.log(this);
         grid[x][y] = this.createNode(x, y);
       }
     }
     return grid;
   }
 
-  createNode(x, y, isWall = false) {
+  createNode(x, y) {
+    const { startNode, finishNode } = this.state;
     return {
       x,
       y,
       isVisited: false,
-      isWall: isWall,
-      isStart: x === START_NODE_X && y === START_NODE_Y,
-      isFinish: x === FINISH_NODE_X && y === FINISH_NODE_Y,
+      isWall: false,
+      isStart: x === startNode.x && y === startNode.y,
+      isFinish: x === finishNode.x && y === finishNode.y,
       distance: Infinity,
       previousNode: null,
     };
   }
 
   handleMouseDown(x, y, e) {
-    var isAddingWalls;
-    if (this.state.grid[x][y].isWall) {
-      isAddingWalls = false;
+    const grid = this.state.grid;
+    const node = grid[x][y];
+
+    if (node.isStart || node.isFinish) {
+      //Drag Start- / Finish-Node
+      console.log("Drag!");
+      this.setState({ dragNode: node });
     } else {
-      isAddingWalls = true;
+      //Add / Subtract Walls
+      var isAddingWalls, newGrid;
+      if (node.isWall) {
+        isAddingWalls = false;
+      } else {
+        isAddingWalls = true;
+      }
+      if (this.state.isVisualizing) {
+        newGrid = grid;
+      } else {
+        newGrid = this.wall(grid, x, y, isAddingWalls);
+      }
+
+      this.setState({
+        grid: newGrid,
+        isMousePressed: true,
+        isAddingWalls: isAddingWalls,
+      });
     }
-    var newGrid;
-    if (this.state.isVisualizing) {
-      newGrid = this.state.grid;
-    } else {
-      console.log("yay");
-      newGrid = this.wall(this.state.grid, x, y, isAddingWalls);
-    }
 
-    console.log(newGrid);
-
-    this.setState({
-      grid: newGrid,
-      isMousePressed: true,
-      isAddingWalls: isAddingWalls,
-    });
-
-    //prevent drag
+    //prevent awful drag
     e.preventDefault();
   }
 
   handleMouseEnter(x, y, e) {
-    if (this.state.isMousePressed && !this.state.isVisualizing) {
+    const {
+      dragNode,
+      grid,
+      isMousePressed,
+      isVisualizing,
+      isAddingWalls,
+    } = this.state;
+    if (dragNode != null) {
+      if (dragNode.isStart) {
+        this.setState({ startNode: { x, y } });
+      } else {
+        this.setState({ finishNode: { x, y } });
+      }
+      this.setState({ grid: this.createGrid(this.cols, this.rows) });
+    }
+    if (isMousePressed && !isVisualizing) {
       this.setState({
-        grid: this.wall(this.state.grid, x, y, this.state.isAddingWalls),
+        grid: this.wall(grid, x, y, isAddingWalls),
       });
     }
   }
 
   handleMouseUp(e) {
-    this.setState({ isMousePressed: false });
+    this.setState({ isMousePressed: false, dragNode: null });
   }
 
   wall(grid, x, y, isAddingWalls) {
@@ -177,6 +218,13 @@ export default class PathfindingVisualizer extends React.Component {
             disabled={btnDisabled}
           >
             Visualize Dijkstra's Algorithm!
+          </button>
+          <button
+            className="btn btn-danger btn-large mt-3 mb-n4 ml-3"
+            onClick={this.clearBoard}
+            disabled={btnDisabled}
+          >
+            Clear Board
           </button>
         </div>
         <div className="d-flex justify-content-center mt-5">
