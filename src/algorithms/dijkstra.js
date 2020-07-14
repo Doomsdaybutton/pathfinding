@@ -4,10 +4,6 @@
 import { AlgorithmResult } from "./algorithm";
 
 export default function dijkstra(grid) {
-  console.log("↓↓GRID↓↓");
-  console.log(grid);
-  console.log("↑↑GRID↑↑");
-
   //Distance to every node is set to Infinity apart from the Startnode, which has a distance of 0.
   getStartNode(grid).distance = 0;
 
@@ -40,7 +36,6 @@ export default function dijkstra(grid) {
 
     //Update / Recalculate the distance of the unvisitedNeighbours and set their previousNode to the currentNode
     const unvisitedNeighbours = getUnvisitedNeighbours(grid, currentNode);
-    console.log(unvisitedNeighbours);
     updateNeighboursDistanceAndSetPreviousNode(
       currentNode,
       unvisitedNeighbours

@@ -24,7 +24,7 @@ export default class Node extends React.Component {
         }
         onMouseDown={onMouseDown.bind(this, x, y)}
         onMouseEnter={onMouseEnter.bind(this, x, y)}
-        onMouseUp={onMouseUp}
+        onMouseUp={onMouseUp.bind(this, x, y)}
         onDragEnd={onMouseUp}
         onDragStart={() => {
           return false;

@@ -19,11 +19,16 @@ export default class PathfindingVisualizer extends React.Component {
     this.cols = COLS;
     this.rows = ROWS;
     this.state = {
-      grid: this.createGrid(this.cols, this.rows),
+      grid: null,
       isMousePressed: false,
       isAddingWalls: true,
       isVisualizing: false,
       algorithm: "dijkstra",
+      dragNode: null,
+      startNode: { x: START_NODE_X, y: START_NODE_Y },
+      finishNode: { x: FINISH_NODE_X, y: FINISH_NODE_Y },
+      replaceDragNodeWithWall: false,
+      hasVisualized: false,
     };
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -31,11 +36,17 @@ export default class PathfindingVisualizer extends React.Component {
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.visualizeAlgorithm = this.visualizeAlgorithm.bind(this);
     this.clearGrid = this.clearGrid.bind(this);
+    this.clearBoard = this.clearBoard.bind(this);
+    this.dragNode = this.dragNode.bind(this);
+  }
+
+  componentWillMount() {
+    this.setState({ grid: this.createGrid(this.cols, this.rows) });
   }
 
   visualizeAlgorithm() {
     const grid = this.clearGrid();
-    this.setState({ isVisualizing: true });
+    this.setState({ isVisualizing: true, hasVisualized: true });
     const result = algorithm(this.state.algorithm, grid);
     result.animate();
     setTimeout(() => {
@@ -43,6 +54,7 @@ export default class PathfindingVisualizer extends React.Component {
     }, result.nodesInVisitedOrder.length * VISITED_NODES_ANIMATION_SPEED + result.shortestPathInOrder.length * SHORTEST_PATH_ANIMATION_SPEED + 20);
   }
 
+  //Clears the Grid for a new Visualization. Doesn't remove walls
   clearGrid() {
     var newGrid = this.state.grid.slice();
     for (let x = 0; x < newGrid.length; x++) {
@@ -65,6 +77,22 @@ export default class PathfindingVisualizer extends React.Component {
     return newGrid;
   }
 
+  //Completely clears the board.
+  clearBoard() {
+    this.setState(
+      {
+        startNode: { x: START_NODE_X, y: START_NODE_Y },
+        finishNode: { x: FINISH_NODE_X, y: FINISH_NODE_Y },
+      },
+      () => {
+        //setState() is asynchronous thus need to use callback (see: https://ednsquare.com/question/react-js-setstate-doesn-t-update-the-state-immediately------YASNTM)
+        this.clearGrid();
+        const newGrid = this.createGrid(COLS, ROWS);
+        this.setState({ grid: newGrid, hasVisualized: false });
+      }
+    );
+  }
+
   createGrid(cols, rows) {
     var grid = new Array(parseInt(cols, 10))
       .fill(null)
@@ -77,56 +105,108 @@ export default class PathfindingVisualizer extends React.Component {
     return grid;
   }
 
-  createNode(x, y, isWall = false) {
+  createNode(x, y) {
+    const { startNode, finishNode } = this.state;
     return {
       x,
       y,
       isVisited: false,
-      isWall: isWall,
-      isStart: x === START_NODE_X && y === START_NODE_Y,
-      isFinish: x === FINISH_NODE_X && y === FINISH_NODE_Y,
+      isWall: false,
+      isStart: x === startNode.x && y === startNode.y,
+      isFinish: x === finishNode.x && y === finishNode.y,
       distance: Infinity,
       previousNode: null,
     };
   }
 
   handleMouseDown(x, y, e) {
-    var isAddingWalls;
-    if (this.state.grid[x][y].isWall) {
-      isAddingWalls = false;
+    const grid = this.state.grid;
+    const node = grid[x][y];
+
+    if (node.isStart || node.isFinish) {
+      //Drag Start- / Finish-Node
+      console.log("Drag!");
+      this.setState({ dragNode: node.isStart ? "start" : "finish" });
     } else {
-      isAddingWalls = true;
+      //Add / Subtract Walls
+      var isAddingWalls, newGrid;
+      if (node.isWall) {
+        isAddingWalls = false;
+      } else {
+        isAddingWalls = true;
+      }
+      if (this.state.isVisualizing) {
+        newGrid = grid;
+      } else {
+        newGrid = this.wall(grid, x, y, isAddingWalls);
+      }
+
+      this.setState({
+        grid: newGrid,
+        isMousePressed: true,
+        isAddingWalls: isAddingWalls,
+      });
     }
-    var newGrid;
-    if (this.state.isVisualizing) {
-      newGrid = this.state.grid;
-    } else {
-      console.log("yay");
-      newGrid = this.wall(this.state.grid, x, y, isAddingWalls);
-    }
 
-    console.log(newGrid);
-
-    this.setState({
-      grid: newGrid,
-      isMousePressed: true,
-      isAddingWalls: isAddingWalls,
-    });
-
-    //prevent drag
+    //prevent awful drag
     e.preventDefault();
   }
 
   handleMouseEnter(x, y, e) {
-    if (this.state.isMousePressed && !this.state.isVisualizing) {
+    const {
+      dragNode,
+      grid,
+      isMousePressed,
+      isVisualizing,
+      isAddingWalls,
+    } = this.state;
+    if (dragNode != null) {
+      this.dragNode(dragNode, x, y);
+    }
+    if (isMousePressed && !isVisualizing) {
       this.setState({
-        grid: this.wall(this.state.grid, x, y, this.state.isAddingWalls),
+        grid: this.wall(grid, x, y, isAddingWalls),
       });
     }
   }
 
-  handleMouseUp(e) {
-    this.setState({ isMousePressed: false });
+  handleMouseUp(x, y, e) {
+    const { dragNode } = this.state;
+    if (dragNode != null) {
+      this.dragNode(dragNode, x, y);
+    }
+    this.setState({ isMousePressed: false, dragNode: null });
+  }
+
+  dragNode(dragNode, x2, y2) {
+    const isStart = dragNode == "start";
+    const { x, y } = isStart ? this.state.startNode : this.state.finishNode;
+    const newGrid = this.state.grid.slice();
+    if (this.state.replaceDragNodeWithWall) {
+      newGrid[x][y].isWall = true;
+      this.setState({ replaceDragNodeWithWall: false });
+    }
+    if (newGrid[x2][y2].isWall) {
+      this.setState({ replaceDragNodeWithWall: true });
+      newGrid[x2][y2].isWall = false;
+    }
+    if (isStart) {
+      newGrid[x][y].isStart = false;
+      newGrid[x2][y2].isStart = true;
+      this.setState({ startNode: { x: x2, y: y2 } });
+    } else {
+      newGrid[x][y].isFinish = false;
+      newGrid[x2][y2].isFinish = true;
+      this.setState({ finishNode: { x: x2, y: y2 } });
+    }
+    //this.setState({ grid: newGrid });
+    if (this.state.hasVisualized) this.previewAlgorithm();
+  }
+
+  previewAlgorithm() {
+    const grid = this.clearGrid();
+    const result = algorithm(this.state.algorithm, grid);
+    result.animate(true);
   }
 
   wall(grid, x, y, isAddingWalls) {
@@ -177,6 +257,13 @@ export default class PathfindingVisualizer extends React.Component {
             disabled={btnDisabled}
           >
             Visualize Dijkstra's Algorithm!
+          </button>
+          <button
+            className="btn btn-danger btn-large mt-3 mb-n4 ml-3"
+            onClick={this.clearBoard}
+            disabled={btnDisabled}
+          >
+            Clear Board
           </button>
         </div>
         <div className="d-flex justify-content-center mt-5">

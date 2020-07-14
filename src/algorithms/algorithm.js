@@ -26,35 +26,53 @@ export function AlgorithmResult(
   this.animateShortestPathInOrder = this.animateShortestPathInOrder.bind(this);
 }
 
-AlgorithmResult.prototype.animate = function () {
+AlgorithmResult.prototype.animate = function (isPreview = false) {
   if (!this.isSuccessful) {
-    alert("unsuccessful");
+    //alert("unsuccessful");
   }
-  this.animateVisitedNodesInOrder();
+  this.animateVisitedNodesInOrder(isPreview);
   setTimeout(
-    this.animateShortestPathInOrder,
-    this.nodesInVisitedOrder.length * VISITED_NODES_ANIMATION_SPEED + 10
+    this.animateShortestPathInOrder.bind(this, isPreview),
+    isPreview
+      ? 0
+      : this.nodesInVisitedOrder.length * VISITED_NODES_ANIMATION_SPEED + 10
   );
 };
 
-AlgorithmResult.prototype.animateVisitedNodesInOrder = function () {
+AlgorithmResult.prototype.animateVisitedNodesInOrder = function (
+  isPreview = false
+) {
   for (let i = 0; i < this.nodesInVisitedOrder.length; i++) {
-    //Timeout is i * ANIMATION_SPEED. See: https://coderwall.com/p/_ppzrw/be-careful-with-settimeout-in-loops
-    setTimeout(() => {
+    if (isPreview) {
       document.getElementById(
         `node-${this.nodesInVisitedOrder[i].x}-${this.nodesInVisitedOrder[i].y}`
       ).className += " visited";
-    }, i * VISITED_NODES_ANIMATION_SPEED);
+    } else {
+      //Timeout is i * ANIMATION_SPEED. See: https://coderwall.com/p/_ppzrw/be-careful-with-settimeout-in-loops
+      setTimeout(() => {
+        document.getElementById(
+          `node-${this.nodesInVisitedOrder[i].x}-${this.nodesInVisitedOrder[i].y}`
+        ).className += " visited";
+      }, i * VISITED_NODES_ANIMATION_SPEED);
+    }
   }
 };
 
-AlgorithmResult.prototype.animateShortestPathInOrder = function () {
+AlgorithmResult.prototype.animateShortestPathInOrder = function (
+  isPreview = false
+) {
   console.log("animate shortest path");
   for (let i = 0; i < this.shortestPathInOrder.length; i++) {
-    setTimeout(() => {
+    if (isPreview) {
       document.getElementById(
         `node-${this.shortestPathInOrder[i].x}-${this.shortestPathInOrder[i].y}`
       ).className += " path";
-    }, SHORTEST_PATH_ANIMATION_SPEED * i);
+    } else {
+      setTimeout(() => {
+        document.getElementById(
+          `node-${this.shortestPathInOrder[i].x}-${this.shortestPathInOrder[i].y}`
+        ).className += " path";
+      }, i * SHORTEST_PATH_ANIMATION_SPEED);
+    }
   }
 };
