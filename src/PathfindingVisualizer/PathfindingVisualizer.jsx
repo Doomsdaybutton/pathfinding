@@ -37,7 +37,7 @@ export default class PathfindingVisualizer extends React.Component {
     this.visualizeAlgorithm = this.visualizeAlgorithm.bind(this);
     this.clearGrid = this.clearGrid.bind(this);
     this.clearBoard = this.clearBoard.bind(this);
-    this.createNode = this.createNode.bind(this);
+    this.dragNode = this.dragNode.bind(this);
   }
 
   componentWillMount() {
@@ -117,7 +117,7 @@ export default class PathfindingVisualizer extends React.Component {
     if (node.isStart || node.isFinish) {
       //Drag Start- / Finish-Node
       console.log("Drag!");
-      this.setState({ dragNode: node });
+      this.setState({ dragNode: node.isStart ? "start" : "finish" });
     } else {
       //Add / Subtract Walls
       var isAddingWalls, newGrid;
@@ -152,12 +152,7 @@ export default class PathfindingVisualizer extends React.Component {
       isAddingWalls,
     } = this.state;
     if (dragNode != null) {
-      if (dragNode.isStart) {
-        this.setState({ startNode: { x, y } });
-      } else {
-        this.setState({ finishNode: { x, y } });
-      }
-      this.setState({ grid: this.createGrid(this.cols, this.rows) });
+      this.dragNode(dragNode, x, y);
     }
     if (isMousePressed && !isVisualizing) {
       this.setState({
@@ -166,8 +161,27 @@ export default class PathfindingVisualizer extends React.Component {
     }
   }
 
-  handleMouseUp(e) {
+  handleMouseUp(x, y, e) {
+    const { dragNode } = this.state;
+    if (dragNode != null) {
+      this.dragNode(dragNode, x, y);
+    }
     this.setState({ isMousePressed: false, dragNode: null });
+  }
+
+  dragNode(dragNode, x2, y2) {
+    const isStart = dragNode == "start";
+    const { x, y } = isStart ? this.state.startNode : this.state.finishNode;
+    const newGrid = this.state.grid.slice();
+    if (isStart) {
+      newGrid[x][y].isStart = false;
+      newGrid[x2][y2].isStart = true;
+      this.setState({ startNode: { x: x2, y: y2 } });
+    } else {
+      newGrid[x][y].isFinish = false;
+      newGrid[x2][y2].isFinish = true;
+      this.setState({ finishNode: { x: x2, y: y2 } });
+    }
   }
 
   wall(grid, x, y, isAddingWalls) {
