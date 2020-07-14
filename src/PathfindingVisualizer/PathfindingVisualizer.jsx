@@ -29,6 +29,7 @@ export default class PathfindingVisualizer extends React.Component {
       dragNode: null,
       startNode: { x: START_NODE_X, y: START_NODE_Y },
       finishNode: { x: FINISH_NODE_X, y: FINISH_NODE_Y },
+      replaceDragNodeWithWall: false,
     };
 
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -173,6 +174,14 @@ export default class PathfindingVisualizer extends React.Component {
     const isStart = dragNode == "start";
     const { x, y } = isStart ? this.state.startNode : this.state.finishNode;
     const newGrid = this.state.grid.slice();
+    if (this.state.replaceDragNodeWithWall) {
+      newGrid[x][y].isWall = true;
+      this.setState({ replaceDragNodeWithWall: false });
+    }
+    if (newGrid[x2][y2].isWall) {
+      this.setState({ replaceDragNodeWithWall: true });
+      newGrid[x2][y2].isWall = false;
+    }
     if (isStart) {
       newGrid[x][y].isStart = false;
       newGrid[x2][y2].isStart = true;
