@@ -46,7 +46,7 @@ AlgorithmResult.prototype.animateVisitedNodesInOrder = function (
     if (isPreview) {
       document.getElementById(
         `node-${this.nodesInVisitedOrder[i].x}-${this.nodesInVisitedOrder[i].y}`
-      ).className += " visited";
+      ).className += " visited preview";
     } else {
       //Timeout is i * ANIMATION_SPEED. See: https://coderwall.com/p/_ppzrw/be-careful-with-settimeout-in-loops
       setTimeout(() => {
@@ -66,7 +66,7 @@ AlgorithmResult.prototype.animateShortestPathInOrder = function (
     if (isPreview) {
       document.getElementById(
         `node-${this.shortestPathInOrder[i].x}-${this.shortestPathInOrder[i].y}`
-      ).className += " path";
+      ).className += " path preview";
     } else {
       setTimeout(() => {
         document.getElementById(

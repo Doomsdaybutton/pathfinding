@@ -10,7 +10,7 @@ export const COLS = 55,
   START_NODE_Y = Math.floor(ROWS / 2),
   FINISH_NODE_X = COLS - START_NODE_X - 1,
   FINISH_NODE_Y = START_NODE_Y,
-  VISITED_NODES_ANIMATION_SPEED = 15,
+  VISITED_NODES_ANIMATION_SPEED = 10,
   SHORTEST_PATH_ANIMATION_SPEED = 7;
 
 export default class PathfindingVisualizer extends React.Component {
