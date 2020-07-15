@@ -179,6 +179,9 @@ export default class PathfindingVisualizer extends React.Component {
   }
 
   dragNode(dragNode, x2, y2) {
+    //Dont drag into Start or Finish node or they will overlap
+    if (this.state.grid[x2][y2].isStart || this.state.grid[x2][y2].isFinish)
+      return false;
     const isStart = dragNode == "start";
     const { x, y } = isStart ? this.state.startNode : this.state.finishNode;
     const newGrid = this.state.grid.slice();
