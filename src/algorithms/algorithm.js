@@ -4,11 +4,15 @@ import {
   SHORTEST_PATH_ANIMATION_SPEED,
 } from "../PathfindingVisualizer/PathfindingVisualizer";
 import dijkstra from "./dijkstra";
+import astar from "./astar";
 
 export default function algorithm(type, grid) {
   switch (type) {
     case "dijkstra":
       return dijkstra(grid);
+      break;
+    case "astar":
+      return astar(grid);
       break;
     default:
       break;

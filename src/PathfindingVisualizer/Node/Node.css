@@ -6,6 +6,7 @@
 .node {
   padding: 9px;
   border: rgba(17, 188, 255, 0.349) 0.5px solid;
+  margin-bottom: -1px;
 }
 
 /* ------------------- */

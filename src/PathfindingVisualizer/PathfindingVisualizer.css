@@ -10,3 +10,7 @@
 .container {
   width: 80%;
 }
+
+a:hover {
+  text-decoration: none;
+}

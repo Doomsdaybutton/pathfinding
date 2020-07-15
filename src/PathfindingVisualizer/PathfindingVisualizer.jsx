@@ -4,6 +4,21 @@ import React from "react";
 import Node from "./Node/Node";
 import algorithm from "../algorithms/algorithm";
 
+function AlgorithmType(
+  id,
+  name,
+  displayName,
+  guaranteesShortestPath,
+  weighted
+) {
+  Object.assign(this, {
+    id,
+    name,
+    displayName,
+    guaranteesShortestPath,
+    weighted,
+  });
+}
 export const COLS = 55,
   ROWS = 25,
   START_NODE_X = 5,
@@ -11,7 +26,11 @@ export const COLS = 55,
   FINISH_NODE_X = COLS - START_NODE_X - 1,
   FINISH_NODE_Y = START_NODE_Y,
   VISITED_NODES_ANIMATION_SPEED = 10,
-  SHORTEST_PATH_ANIMATION_SPEED = 7;
+  SHORTEST_PATH_ANIMATION_SPEED = 7,
+  ALGORITHMS = [
+    new AlgorithmType(0, "dijkstra", "Dijkstra's", true, true),
+    new AlgorithmType(1, "astar", "A*", true, true),
+  ];
 
 export default class PathfindingVisualizer extends React.Component {
   constructor() {
@@ -23,7 +42,7 @@ export default class PathfindingVisualizer extends React.Component {
       isMousePressed: false,
       isAddingWalls: true,
       isVisualizing: false,
-      algorithm: "dijkstra",
+      algorithm: ALGORITHMS[0],
       dragNode: null,
       startNode: { x: START_NODE_X, y: START_NODE_Y },
       finishNode: { x: FINISH_NODE_X, y: FINISH_NODE_Y },
@@ -38,6 +57,11 @@ export default class PathfindingVisualizer extends React.Component {
     this.clearGrid = this.clearGrid.bind(this);
     this.clearBoard = this.clearBoard.bind(this);
     this.dragNode = this.dragNode.bind(this);
+    this.setAlgorithm = this.setAlgorithm.bind(this);
+  }
+
+  setAlgorithm(algorithm) {
+    this.setState({ algorithm: algorithm });
   }
 
   componentWillMount() {
@@ -47,7 +71,7 @@ export default class PathfindingVisualizer extends React.Component {
   visualizeAlgorithm() {
     const grid = this.clearGrid();
     this.setState({ isVisualizing: true, hasVisualized: true });
-    const result = algorithm(this.state.algorithm, grid);
+    const result = algorithm(this.state.algorithm.name, grid);
     result.animate();
     setTimeout(() => {
       this.setState({ isVisualizing: false });
@@ -205,7 +229,7 @@ export default class PathfindingVisualizer extends React.Component {
 
   previewAlgorithm() {
     const grid = this.clearGrid();
-    const result = algorithm(this.state.algorithm, grid);
+    const result = algorithm(this.state.algorithm.name, grid);
     result.animate(true);
   }
 
@@ -242,7 +266,6 @@ export default class PathfindingVisualizer extends React.Component {
       rows.push(<tr key={y}>{row}</tr>);
     }
 
-    let btn_class = "btn btn-large btn-success mt-3 mb-n4";
     var btnDisabled = false;
     if (this.state.isVisualizing) {
       btnDisabled = true;
@@ -250,13 +273,78 @@ export default class PathfindingVisualizer extends React.Component {
 
     return (
       <>
+        <div className="navbar navbar-expand-lg navbar-light bg-light">
+          <div className="container">
+            <a href="#" className="navbar-brand text-success">
+              Pathfinding Visualizer
+            </a>
+            <button
+              className="navbar-toggler"
+              data-toggle="collapse"
+              data-target="#my-navbar"
+              aria-controls="my-navbar"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span className="navbar-toggler-icon text-color-dark"></span>
+            </button>
+            <div id="my-navbar" className="collapse navbar-collapse">
+              <div className="navbar-nav">
+                {/*<form className="form-inline my-2 my-lg-0 mr-2">
+                  <select
+                    className="nav-item form-control"
+                    id="select-algorithm"
+                  >
+                    {ALGORITHMS.map((algorithm) => {
+                      return (
+                        <option
+                          value={`${algorithm.id}`}
+                        >{`${algorithm.displayName}`}</option>
+                      );
+                    })}
+                  </select>
+                </form>*/}
+                <div className="nav-item dropdown pt-lg-2 pr-0 mr-2">
+                  <a
+                    href="#"
+                    className="dropdown-toggle"
+                    id="dropdown-algorithm"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    Algorithms
+                  </a>
+                  <div
+                    className="dropdown-menu"
+                    aria-labelledby="dropdown-algorithm"
+                  >
+                    {ALGORITHMS.map((algorithm) => {
+                      return (
+                        <a
+                          href="#"
+                          className="dropdown-item pl-2"
+                          onClick={this.setAlgorithm.bind(this, algorithm)}
+                        >{`${algorithm.displayName}`}</a>
+                      );
+                    })}
+                  </div>
+                </div>
+                <button
+                  className="nav-item btn btn-success btn-large my-2 my-lg-0 mr-2"
+                  onClick={this.visualizeAlgorithm}
+                  disabled={btnDisabled}
+                >
+                  Visualize {this.state.algorithm.displayName} Algorithm!
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="container text-center">
-          <button
-            className={btn_class}
-            onClick={this.visualizeAlgorithm}
-            disabled={btnDisabled}
-          >
-            Visualize Dijkstra's Algorithm!
+          <button onClick={this.visualizeAlgorithm} disabled={btnDisabled}>
+            Visualize {this.state.algorithm.displayName} Algorithm!
           </button>
           <button
             className="btn btn-danger btn-large mt-3 mb-n4 ml-3"
